@@ -1,0 +1,22 @@
+.recipeContent {
+  overflow: hidden;
+  cursor: default;
+}
+
+.open {
+  height: 100%;
+}
+
+.closed {
+  height: 0px;
+}
+
+.recipeName {
+  cursor: pointer;
+}
+
+#recipeForm input {
+  margin: auto;
+  margin-top: 15px;
+  width: 300px;
+}
