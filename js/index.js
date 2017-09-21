@@ -50,13 +50,21 @@ var Table = function (_React$Component) {
     });
   };
 
+  Table.prototype.updateTable = function updateTable() {
+    this.setState({
+      recipes: JSON.parse(localStorage.getItem("recipes"))
+    });
+    console.log(this.state.recipes);
+  };
+
   Table.prototype.buildRecipes = function buildRecipes() {
     var sections = this.state.recipes.map(function (recipe, index) {
       return React.createElement(Recipe, {
         recipe: recipe,
-        key: index
+        key: index,
+        updateTable: this.updateTable.bind(this)
       });
-    });
+    }.bind(this));
     return sections;
   };
 
@@ -82,7 +90,8 @@ var Recipe = function (_React$Component2) {
     var _this2 = _possibleConstructorReturn(this, _React$Component2.call(this, props));
 
     _this2.state = {
-      open: false
+      open: false,
+      index: _this2.props.key
     };
     return _this2;
   }
@@ -99,6 +108,13 @@ var Recipe = function (_React$Component2) {
     } else {
       return "closed";
     }
+  };
+
+  Recipe.prototype.deleteRecipe = function deleteRecipe() {
+    recipes.splice(this.props.key, 1);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
+    this.props.updateTable();
+    console.log(recipes);
   };
 
   Recipe.prototype.render = function render() {
@@ -127,7 +143,7 @@ var Recipe = function (_React$Component2) {
         ),
         React.createElement(
           "button",
-          { type: "button", className: "btn btn-danger", on: true },
+          { type: "button", className: "btn btn-danger", onClick: this.deleteRecipe.bind(this) },
           "Delete Recipe"
         ),
         React.createElement(

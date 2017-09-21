@@ -39,15 +39,23 @@ class Table extends React.Component{
     });
   }
   
+  updateTable(){
+    this.setState({
+      recipes: JSON.parse(localStorage.getItem("recipes")),
+    });
+    console.log(this.state.recipes);
+  }
+  
   buildRecipes(){
     var sections = this.state.recipes.map(function(recipe, index){
       return(
       <Recipe
         recipe={recipe}
         key={index}
+        updateTable={this.updateTable.bind(this)}
         />
       ) 
-    });
+    }.bind(this));
     return sections;
   }
   
@@ -68,6 +76,7 @@ class Recipe extends React.Component{
     super(props);
     this.state = {
       open: false,
+      index: this.props.key,
     };
   }
   
@@ -85,6 +94,13 @@ class Recipe extends React.Component{
     }
   }
   
+  deleteRecipe(){
+    recipes.splice(this.props.key, 1);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
+    this.props.updateTable();
+    console.log(recipes);
+  }
+  
   render(){
     return(
     
@@ -97,7 +113,7 @@ class Recipe extends React.Component{
             )
           })}
           <p className="directions">{this.props.recipe.directions}</p>
-          <button type="button" className="btn btn-danger" on>Delete Recipe</button>
+          <button type="button" className="btn btn-danger" onClick={this.deleteRecipe.bind(this)}>Delete Recipe</button>
           <button type = "button" className="btn">Edit Recipe</button>
         </div>
     </div>
