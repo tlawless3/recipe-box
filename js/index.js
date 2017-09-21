@@ -9,10 +9,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 //sets and stores recipes in local storage
 var recipes = [{ name: "Spaghetti",
   ingredients: ["Tomato Sauce", "Noodles"],
-  directions: "Cook Noodles, add sauce"
+  directions: "Cook Noodles, add sauce",
+  index: 0
 }, { name: "Bread",
   ingredients: ["Flour", "Water", "Yeast"],
-  directions: "Combine, then cook"
+  directions: "Combine, then cook",
+  index: 1
 }];
 localStorage.setItem("recipes", JSON.stringify(recipes));
 
@@ -37,13 +39,11 @@ var Table = function (_React$Component) {
     var newRecipeObj = {
       name: $("#recipeName").val(),
       ingredients: ingredientArr,
-      directions: $("#recipeDirections").val()
+      directions: $("#recipeDirections").val(),
+      index: recipes.length
     };
 
-    console.log(newRecipeObj);
-
     recipes.push(newRecipeObj);
-    console.log(recipes);
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({
       recipes: JSON.parse(localStorage.getItem("recipes"))
@@ -54,7 +54,6 @@ var Table = function (_React$Component) {
     this.setState({
       recipes: JSON.parse(localStorage.getItem("recipes"))
     });
-    console.log(this.state.recipes);
   };
 
   Table.prototype.buildRecipes = function buildRecipes() {
@@ -90,8 +89,7 @@ var Recipe = function (_React$Component2) {
     var _this2 = _possibleConstructorReturn(this, _React$Component2.call(this, props));
 
     _this2.state = {
-      open: false,
-      index: _this2.props.key
+      open: false
     };
     return _this2;
   }
@@ -111,10 +109,29 @@ var Recipe = function (_React$Component2) {
   };
 
   Recipe.prototype.deleteRecipe = function deleteRecipe() {
-    recipes.splice(this.props.key, 1);
+    recipes.splice(this.props.recipe.index, 1);
+    for (var i = this.props.recipe.index; i < recipes.length; i++) {
+      recipes[i].index--;
+    }
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.props.updateTable();
+  };
+
+  Recipe.prototype.editRecipe = function editRecipe() {
+    var ingredientStr = $("#recipeIngredientsEdit").val();
+    var ingredientArr = ingredientStr.split(",");
+
+    var newRecipeObj = {
+      name: $("#recipeNameEdit").val(),
+      ingredients: ingredientArr,
+      directions: $("#recipeDirectionsEdit").val(),
+      index: recipe.index
+    };
+
+    recipes.splice(this.props.key, 1, newRecipeObj);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
     console.log(recipes);
+    this.props.updateTable();
   };
 
   Recipe.prototype.render = function render() {
@@ -148,8 +165,75 @@ var Recipe = function (_React$Component2) {
         ),
         React.createElement(
           "button",
-          { type: "button", className: "btn" },
-          "Edit Recipe"
+          { type: "button", className: "btn btn-primary addModalButton", "data-toggle": "modal", "data-target": "#editModal" },
+          " Edit Recipe "
+        ),
+        React.createElement(
+          "div",
+          { className: "modal fade", id: "editModal", tabindex: "-1", role: "dialog", "aria-labelledby": "exampleModalLabel", "aria-hidden": "true" },
+          React.createElement(
+            "div",
+            { className: "modal-dialog", role: "document" },
+            React.createElement(
+              "div",
+              { className: "modal-content" },
+              React.createElement(
+                "div",
+                { className: "modal-header" },
+                React.createElement(
+                  "h5",
+                  { className: "modal-title", id: "ModalLabel" },
+                  "Edit recipe"
+                ),
+                React.createElement(
+                  "button",
+                  { type: "button", className: "close", "data-dismiss": "modal", "aria-label": "Close" },
+                  React.createElement(
+                    "span",
+                    { "aria-hidden": "true" },
+                    "×"
+                  )
+                )
+              ),
+              React.createElement(
+                "div",
+                { className: "modal-body" },
+                React.createElement(
+                  "form",
+                  { id: "recipeForm" },
+                  React.createElement(
+                    "div",
+                    { className: "row recipeInput" },
+                    React.createElement("input", { type: "text", id: "recipeNameEdit", placeholder: "Name" })
+                  ),
+                  React.createElement(
+                    "div",
+                    { className: "row recipeInput" },
+                    React.createElement("input", { type: "text", id: "recipeIngredientsEdit", placeholder: "Ingredients, comma seperated" })
+                  ),
+                  React.createElement(
+                    "div",
+                    { className: "row recipeInput" },
+                    React.createElement("input", { type: "text", id: "recipeDirectionsEdit", placeholder: "Directions" })
+                  )
+                )
+              ),
+              React.createElement(
+                "div",
+                { className: "modal-footer" },
+                React.createElement(
+                  "button",
+                  { type: "button", className: "btn btn-secondary", "data-dismiss": "modal" },
+                  "Close"
+                ),
+                React.createElement(
+                  "button",
+                  { type: "button", className: "btn btn-primary", onClick: this.editRecipe.bind(this), "data-dismiss": "modal" },
+                  "Submit"
+                )
+              )
+            )
+          )
         )
       )
     );

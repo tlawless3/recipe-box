@@ -2,10 +2,12 @@
 var recipes = [{name:"Spaghetti",
                 ingredients:["Tomato Sauce", "Noodles"],
                 directions: "Cook Noodles, add sauce",
+                index: 0,
                 }, 
                 {name: "Bread",
                  ingredients:["Flour","Water","Yeast"],
                  directions: "Combine, then cook", 
+                 index: 1,
                 },];
 localStorage.setItem("recipes", JSON.stringify(recipes));
 
@@ -27,12 +29,10 @@ class Table extends React.Component{
       name: $("#recipeName").val(),
       ingredients: ingredientArr,
       directions: $("#recipeDirections").val(),
+      index: recipes.length,
     };
     
-    console.log(newRecipeObj);
-    
     recipes.push(newRecipeObj);
-    console.log(recipes);
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({
       recipes: JSON.parse(localStorage.getItem("recipes")),
@@ -43,7 +43,6 @@ class Table extends React.Component{
     this.setState({
       recipes: JSON.parse(localStorage.getItem("recipes")),
     });
-    console.log(this.state.recipes);
   }
   
   buildRecipes(){
@@ -76,7 +75,6 @@ class Recipe extends React.Component{
     super(props);
     this.state = {
       open: false,
-      index: this.props.key,
     };
   }
   
@@ -95,10 +93,29 @@ class Recipe extends React.Component{
   }
   
   deleteRecipe(){
-    recipes.splice(this.props.key, 1);
+    recipes.splice(this.props.recipe.index, 1);
+    for(var i = this.props.recipe.index; i < recipes.length; i++){
+      recipes[i].index--
+    }
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.props.updateTable();
+  }
+  
+  editRecipe(){
+    var ingredientStr = $("#recipeIngredientsEdit").val();
+    var ingredientArr = ingredientStr.split(",");
+    
+    var newRecipeObj = {
+      name: $("#recipeNameEdit").val(),
+      ingredients: ingredientArr,
+      directions: $("#recipeDirectionsEdit").val(),
+      index: recipe.index,
+    };
+    
+    recipes.splice(this.props.key, 1, newRecipeObj);
+    localStorage.setItem("recipes", JSON.stringify(recipes));
     console.log(recipes);
+    this.props.updateTable();
   }
   
   render(){
@@ -114,7 +131,36 @@ class Recipe extends React.Component{
           })}
           <p className="directions">{this.props.recipe.directions}</p>
           <button type="button" className="btn btn-danger" onClick={this.deleteRecipe.bind(this)}>Delete Recipe</button>
-          <button type = "button" className="btn">Edit Recipe</button>
+          <button type="button" className="btn btn-primary addModalButton" data-toggle="modal" data-target="#editModal"> Edit Recipe </button>
+          <div className="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="ModalLabel">Edit recipe</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <form id="recipeForm">
+                  <div className="row recipeInput">
+                  <input type="text" id="recipeNameEdit" placeholder="Name"></input>
+                  </div>
+                  <div className="row recipeInput">
+                  <input type="text" id="recipeIngredientsEdit" placeholder="Ingredients, comma seperated"></input>
+                  </div>
+                  <div className="row recipeInput">
+                  <input type="text" id="recipeDirectionsEdit" placeholder="Directions"></input>
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" className="btn btn-primary" onClick={this.editRecipe.bind(this)} data-dismiss="modal">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
     </div>
     )
